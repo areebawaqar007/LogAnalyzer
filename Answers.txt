@@ -1,0 +1,105 @@
+🧾 Log Analyzer – Project Notes
+===================================================
+▶️ How to run
+===================================================
+To run this project on a fresh machine:
+
+1. Install Python
+
+Make sure Python 3.8+ is installed.
+
+Check version:
+
+python --version
+2. Clone / download project
+git clone <repo-url>
+cd log-analyzer
+3. Run the log generator (optional but useful for testing)
+python scripts/generate_logs.py
+
+This creates a file:
+
+sample_logs.txt
+4. Run the analyzer
+python analyzer.py sample_logs.txt
+
+No external libraries are required — everything uses Python standard library only.
+
+===================================================
+🧠 Stack choice
+===================================================
+
+I chose Python for this project because it is very strong for text processing, file handling, and quick data analysis.
+ Log parsing mainly involves reading large files line-by-line, cleaning messy data, and extracting patterns — Python makes this simple and readable.
+
+I avoided using heavier frameworks because they would be unnecessary for this type of task.
+
+Why not other stacks?
+❌ Java: too verbose for fast parsing and iteration
+❌ JavaScript: weaker for heavy file processing and data parsing
+
+Python gives the best balance of simplicity and power for this kind of log analysis task.
+
+===================================================
+⚠️ One real edge case handled
+===================================================
+
+One important edge case is mixed-format log lines (JSON + text logs).
+
+📄 File: parser.py
+📍 Function: parse_line()
+line:129
+
+Example:
+
+{"timestamp": "2024-03-15T14:23:01Z", "ip": "10.0.0.1", "status": 200}
+
+and normal logs like:
+
+2024-03-15T14:23:01Z 192.168.1.1 GET /api/users 200 120ms
+Why this matters:
+
+Without handling JSON logs, the parser would fail or crash when encountering structured logs mixed with normal logs.
+
+What my code does:
+
+It detects JSON lines using:
+
+if line.startswith("{"):
+
+Then safely parses them using json.loads() and extracts fields.
+
+Without this:
+JSON logs would be marked as completely invalid
+valid data would be lost
+error count would be inflated incorrectly
+
+===================================================
+🤖 AI usage
+===================================================
+🤖 AI Usage
+
+I first thoroughly understood the problem statement myself, and then used ChatGPT (OpenAI) as a support tool while building this project, mainly to help with design ideas and handling complex edge cases in log processing.
+
+1. Log parser design
+
+I asked how to design a log parser that can handle real-world messy logs instead of assuming a fixed format. ChatGPT helped me structure a flexible parsing approach that supports normal logs, JSON logs, and malformed lines.
+
+2. Response time handling
+
+I asked how to correctly normalize different response time formats such as ms, seconds, and raw numeric values. It provided a unified method to convert all of them into a consistent format for analysis.
+
+✏️ What I changed from AI output
+
+Before applying AI suggestions, I first thoroughly understood the problem statement myself. During implementation, I noticed that many real-world edge cases were missing from the initial approach.
+
+I then modified the AI-generated output, added additional edge cases, and improved the logic to better match realistic log scenarios. This included expanding support for malformed logs, mixed formats, and other irregular inputs to make the system more robust and closer to real-world behavior.
+===================================================
+⚠️ Honest gap
+===================================================
+
+One limitation of my submission is that the analytics are mostly basic aggregations (counts and averages) and do not include more advanced insights like percentiles (P95/P99) or anomaly detection for sudden spikes in errors or response time.
+
+How I would fix it with another day:
+
+If I had more time, I would improve the statistics module by adding percentile-based latency analysis (like P95 response time) and simple anomaly detection rules (for example, detecting when an endpoint suddenly becomes much slower or starts returning more errors than usual). This would make the tool more useful for real monitoring use cases and closer to production-grade log analysis systems.
